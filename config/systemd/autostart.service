@@ -1,0 +1,33 @@
+[Unit]
+Description=Autostart Boot Orchestration (13 Phases)
+Documentation=https://github.com/fidpa/linux-server-reboot-management
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+RemainAfterExit=no
+
+# User that runs the autostart script
+# Change to your service user (e.g., root, admin)
+User=root
+
+# ExecStart runs the 13-phase boot orchestration
+# IMPORTANT: Update this path to match your installation!
+ExecStart=/opt/linux-server-reboot-management/2-autostart/autostart-template.sh
+
+# Timeout for boot orchestration (adjust based on complexity)
+# 300s = 5 minutes (sufficient for most setups)
+TimeoutStartSec=300
+
+# Logging
+StandardOutput=journal
+StandardError=journal
+
+# Security hardening (optional - adjust paths as needed)
+# ProtectSystem=strict
+# ReadWritePaths=/var/log
+# NoNewPrivileges=true
+
+[Install]
+WantedBy=multi-user.target

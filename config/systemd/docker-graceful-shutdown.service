@@ -1,0 +1,45 @@
+[Unit]
+Description=Docker Graceful Shutdown Hook
+Documentation=https://github.com/fidpa/linux-server-reboot-management
+DefaultDependencies=no
+
+# CRITICAL: Conflicts= forces ExecStop to run during shutdown!
+# Without this, the hook will NEVER execute.
+Conflicts=shutdown.target reboot.target halt.target
+
+# Run BEFORE shutdown begins
+Before=shutdown.target reboot.target halt.target
+
+# Wait for Docker service to be ready
+After=network.target docker.service
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+
+# User that runs the shutdown script
+# Change to your service user (e.g., root, admin, docker-user)
+User=root
+
+# ExecStart does nothing (service stays "active" until shutdown)
+ExecStart=/bin/true
+
+# ExecStop runs during shutdown (this is the actual shutdown hook)
+# IMPORTANT: Update this path to match your installation!
+ExecStop=/opt/linux-server-reboot-management/docker-graceful-shutdown.sh
+
+# Timeout for shutdown hook (adjust based on your container count)
+# 120s = sufficient for ~20-30 containers with 30s stop timeout each
+TimeoutStopSec=120
+
+# Logging
+StandardOutput=journal
+StandardError=journal
+
+# Security hardening (optional - adjust paths as needed)
+# ProtectSystem=strict
+# ReadWritePaths=/var/log
+# NoNewPrivileges=true
+
+[Install]
+WantedBy=multi-user.target

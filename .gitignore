@@ -1,0 +1,67 @@
+# Test outputs
+*.tmp
+*.log
+test-output/
+
+# Reboot reports
+reboot-reports/
+*.txt
+
+# Local configs
+config.local
+*.env
+!*.example.env
+
+# Editor
+.vscode/
+.idea/
+*.code-workspace
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Temporary files
+/tmp/
+
+# Build artifacts
+*.bak
+*.sh.x
+*.sh.compiled
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg-info/
+dist/
+build/
+
+# Virtual Environments
+venv/
+.venv/
+env/
+ENV/
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+*.cover
+
+# Test Data
+snapshots/
+test-snapshots/
+
+# Personal/marketing content
+REDDIT_POST.md
+LINKEDIN_POST.md
+
+# Symlinks to shared documentation
+CLAUDE.md.rclonelink

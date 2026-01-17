@@ -1,0 +1,55 @@
+# Single Container Example
+#
+# Basic PostgreSQL container with:
+# - restart: always (required for graceful shutdown)
+# - Named volume for data persistence
+# - Health check for post-reboot verification
+#
+# Usage:
+#   docker-compose -f 01-single-container.yml up -d
+#
+# Verify after reboot:
+#   docker ps
+#   docker logs postgres
+#   docker exec postgres pg_isready
+
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: postgres
+    restart: always  # CRITICAL: Use 'always' not 'unless-stopped'
+
+    environment:
+      POSTGRES_USER: myuser
+      POSTGRES_PASSWORD: mypassword
+      POSTGRES_DB: mydb
+
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+    ports:
+      - "5432:5432"
+
+    # Health check for post-reboot verification
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U myuser"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+    # Resource limits (optional but recommended)
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: 2G
+        reservations:
+          cpus: '0.5'
+          memory: 512M
+
+volumes:
+  postgres_data:
+    driver: local

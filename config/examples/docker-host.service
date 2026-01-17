@@ -1,0 +1,29 @@
+[Unit]
+Description=Docker Graceful Shutdown Hook (Docker Host Example)
+Documentation=https://github.com/fidpa/linux-server-reboot-management
+DefaultDependencies=no
+Conflicts=shutdown.target reboot.target halt.target
+Before=shutdown.target reboot.target halt.target
+After=network.target docker.service
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+User=youruser
+ExecStart=/bin/true
+ExecStop=/opt/yourdevice/docker-graceful-shutdown.sh
+TimeoutStopSec=180
+StandardOutput=journal
+StandardError=journal
+
+# Security hardening
+ProtectSystem=strict
+ReadWritePaths=/var/log/yourdevice
+NoNewPrivileges=true
+
+# Environment variables (optional)
+Environment="GRACEFUL_SHUTDOWN_LOG_FILE=/var/log/yourdevice/graceful-shutdown.log"
+Environment="GRACEFUL_SHUTDOWN_TIMEOUT=30"
+
+[Install]
+WantedBy=multi-user.target
