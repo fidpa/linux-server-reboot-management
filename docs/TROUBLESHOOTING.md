@@ -1,5 +1,11 @@
 # Troubleshooting Guide
 
+## ⚡ TL;DR
+
+Common issues: missing `Conflicts=` in systemd service, container not restarting, timeout errors, or permission problems.
+
+---
+
 Common issues and solutions for Linux Server Reboot Management.
 
 ## Quick Diagnosis

@@ -1,5 +1,23 @@
 # Template Customization Guide
 
+## ⚡ TL;DR
+
+Templates require customization; system-snapshot.sh and autostart-template.sh provide Extension API for environment-specific metrics and service orchestration.
+
+---
+
+## Table of Contents
+
+- [Overview](#overview)
+- [System Snapshot Customization](#system-snapshot-customization)
+- [Autostart Template Customization](#autostart-template-customization)
+- [systemd Service Customization](#systemd-service-customization)
+- [Post-Reboot Check Customization](#post-reboot-check-customization)
+- [Common Customization Patterns](#common-customization-patterns)
+- [See Also](#see-also)
+
+---
+
 How to adapt the templates for your environment.
 
 ## Overview

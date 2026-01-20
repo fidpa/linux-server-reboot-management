@@ -1,5 +1,25 @@
 # 3-Phase Core Workflow
 
+## ⚡ TL;DR
+
+3-phase workflow: graceful shutdown (stop containers), autostart (orchestrated boot), verification (health checks). Optional pre-reboot snapshots.
+
+---
+
+## Table of Contents
+
+- [Overview](#overview)
+- [Optional Phase 0: Pre-Reboot Snapshots](#optional-phase-0-pre-reboot-snapshots)
+- [Phase 1: Graceful Shutdown](#phase-1-graceful-shutdown)
+- [Phase 2: Autostart](#phase-2-autostart)
+- [Phase 3: Verification](#phase-3-verification)
+- [Complete Workflow Example](#complete-workflow-example)
+- [Production Best Practices](#production-best-practices)
+- [Troubleshooting](#troubleshooting)
+- [See Also](#see-also)
+
+---
+
 Complete guide to the production reboot management workflow.
 
 ## Overview

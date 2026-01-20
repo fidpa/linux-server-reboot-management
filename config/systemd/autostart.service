@@ -24,10 +24,13 @@ TimeoutStartSec=300
 StandardOutput=journal
 StandardError=journal
 
-# Security hardening (optional - adjust paths as needed)
-# ProtectSystem=strict
-# ReadWritePaths=/var/log
-# NoNewPrivileges=true
+# StateDirectory for persistent state/logs (systemd creates /var/lib/autostart-orchestration/)
+StateDirectory=autostart-orchestration
+
+# Security hardening
+ProtectSystem=strict
+NoNewPrivileges=true
+PrivateTmp=true
 
 [Install]
 WantedBy=multi-user.target

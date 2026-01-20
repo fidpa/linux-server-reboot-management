@@ -36,10 +36,14 @@ TimeoutStopSec=120
 StandardOutput=journal
 StandardError=journal
 
-# Security hardening (optional - adjust paths as needed)
-# ProtectSystem=strict
-# ReadWritePaths=/var/log
-# NoNewPrivileges=true
+# StateDirectory for persistent logs (systemd creates /var/lib/docker-graceful-shutdown/)
+StateDirectory=docker-graceful-shutdown
+Environment="GRACEFUL_SHUTDOWN_LOG_FILE=/var/lib/docker-graceful-shutdown/shutdown.log"
+
+# Security hardening
+ProtectSystem=strict
+NoNewPrivileges=true
+PrivateTmp=true
 
 [Install]
 WantedBy=multi-user.target

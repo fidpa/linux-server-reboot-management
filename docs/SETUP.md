@@ -1,5 +1,11 @@
 # Setup Guide
 
+## ⚡ TL;DR
+
+Install Docker graceful shutdown hook via systemd service; requires Linux systemd 240+, Docker 19.03+, and root access.
+
+---
+
 Complete installation and configuration guide for Linux Server Reboot Management.
 
 ## Prerequisites

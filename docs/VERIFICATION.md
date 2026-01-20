@@ -1,5 +1,11 @@
 # Post-Reboot Verification
 
+## ⚡ TL;DR
+
+Post-reboot verification checks graceful shutdown logs, container restart status, and system health using automated post-reboot-check.sh script.
+
+---
+
 Automated verification checklist after system reboot.
 
 ## Quick Verification (30 seconds)

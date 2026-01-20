@@ -1,5 +1,11 @@
 # Architecture Deep Dive
 
+## ⚡ TL;DR
+
+systemd shutdown hooks require `Conflicts=shutdown.target` to trigger `ExecStop` before reboot; `Before=` alone does not work.
+
+---
+
 Understanding how graceful shutdown hooks work with systemd.
 
 ## The Core Problem
