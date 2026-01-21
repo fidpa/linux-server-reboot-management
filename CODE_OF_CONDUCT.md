@@ -45,10 +45,8 @@ when an individual is officially representing the community in public spaces.
 ## Enforcement
 
 Instances of abusive, harassing, or otherwise unacceptable behavior may be
-reported to the project maintainers. All complaints will be reviewed and
-investigated promptly and fairly.
-
-All complaints will be reviewed and investigated promptly and fairly.
+reported to the project maintainers via GitHub Issues. All complaints will be
+reviewed and investigated promptly and fairly.
 
 ## Attribution
 
