@@ -1,0 +1,30 @@
+name: Lint
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  shellcheck:
+    name: ShellCheck
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Run ShellCheck
+        run: |
+          find . -name "*.sh" -not -path "./.git/*" -print0 | xargs -0 shellcheck --severity=error
+
+  syntax-check:
+    name: Bash Syntax
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Validate Bash syntax
+        run: |
+          find . -name "*.sh" -not -path "./.git/*" -print0 | xargs -0 -I {} bash -n {}
