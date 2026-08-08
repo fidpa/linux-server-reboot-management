@@ -16,9 +16,24 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Extract changelog section
+        run: |
+          VERSION="${GITHUB_REF#refs/tags/v}"
+          awk -v ver="$VERSION" '
+            $0 ~ "^## \\[" ver "\\]" { p=1; next }
+            /^## \[/                 { if (p) exit }
+            /^\[[^]]+\]: /           { if (p) exit }
+            p { print }
+          ' CHANGELOG.md > release-notes.md
+          if [ ! -s release-notes.md ]; then
+            echo "No changelog section for $VERSION — refusing to publish empty notes"
+            exit 1
+          fi
+          cat release-notes.md
+
       - name: Create GitHub Release
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v2
         with:
-          generate_release_notes: true
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          body_path: release-notes.md
+          draft: false
+          prerelease: ${{ contains(github.ref, '-') }}

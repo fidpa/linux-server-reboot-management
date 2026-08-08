@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: MIT
 # https://github.com/fidpa/linux-server-reboot-management
 #
-# Version: 1.0.0
+# Version: 1.1.1
 #
 # Features:
 # - JSON snapshots with system state (services, Docker, network, storage)

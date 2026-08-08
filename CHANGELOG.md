@@ -7,6 +7,31 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.1.1] - 2026-08-08
+
+### Added
+- Issue templates for bug reports and feature requests, tailored to the
+  three-phase reboot workflow (affected phase, journal commands, unit
+  configuration, impact on existing setups)
+- Pull request template with a testing and documentation checklist
+
+### Changed
+- Release notes are now extracted from this changelog instead of being
+  generated from commit messages. The v1.1.0 release page carried a single
+  "Full Changelog" link and none of the actual changes, because the commit
+  history consists of bare version numbers
+- `.shellcheckrc` header now describes this repository instead of an unrelated
+  multi-device setup
+
+### Fixed
+- Version strings across `install.sh`, all four phase scripts,
+  `snapshot-compare.py` and `docs/README.md` were still reporting 1.0.0 after
+  the 1.1.0 release. The installer greeted users with "Installer v1.0.0"
+- Template listing in `install.sh` pointed to `2-autostart/autostart-minimal.sh`
+  instead of `2-autostart/examples/autostart-minimal.sh`
+- Removed a "Question or Discussion" contact link from the issue chooser that
+  pointed to GitHub Discussions, which is not enabled for this repository
+
 ## [1.1.0] - 2026-01-20
 
 ### Added
@@ -30,6 +55,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - JSON output for CI/CD integration
 - Proper escaping for special characters in container names/status
 
-[Unreleased]: https://github.com/fidpa/linux-server-reboot-management/compare/v1.1.0...HEAD
+[Unreleased]: https://github.com/fidpa/linux-server-reboot-management/compare/v1.1.1...HEAD
+[1.1.1]: https://github.com/fidpa/linux-server-reboot-management/compare/v1.1.0...v1.1.1
 [1.1.0]: https://github.com/fidpa/linux-server-reboot-management/compare/v1.0.0...v1.1.0
 [1.0.0]: https://github.com/fidpa/linux-server-reboot-management/releases/tag/v1.0.0

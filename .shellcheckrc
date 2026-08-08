@@ -1,7 +1,6 @@
-# .shellcheckrc - Pi-Router + NAS Server shellcheck config
-# Multi-Device Setup: 552 Shell-Scripts (Pi 5: ~249, NAS: ~303)
-# Best Practices 2025 compliant
-# Optimized for ShellCheck 0.9.0+ (Last reviewed: 12. Dezember 2025)
+# .shellcheckrc - ShellCheck configuration for linux-server-reboot-management
+# Applies to all shell scripts in this repository (see .github/workflows/lint.yml)
+# Optimized for ShellCheck 0.9.0+ (last reviewed: 2025-12-12)
 #
 # References:
 # - https://www.shellcheck.net/wiki/Directive

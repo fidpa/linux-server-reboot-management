@@ -63,5 +63,9 @@ test-snapshots/
 REDDIT_POST.md
 LINKEDIN_POST.md
 
+# Local AI assistant configuration (never published)
+CLAUDE.md
+.claude/
+
 # Symlinks to shared documentation
 CLAUDE.md.rclonelink

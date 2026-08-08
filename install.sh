@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: MIT
 # https://github.com/fidpa/linux-server-reboot-management
 #
-# Version: 1.0.0
+# Version: 1.1.1
 # Created: 2026-01-20
 #
 # Linux Server Reboot Management Installer
@@ -179,7 +179,7 @@ install_templates() {
     echo ""
     echo "  - 0-pre-reboot/system-snapshot.sh         (Optional: System snapshots)"
     echo "  - 2-autostart/autostart-template.sh       (Template: 13-phase boot orchestration)"
-    echo "  - 2-autostart/autostart-minimal.sh        (Template: Simplified autostart)"
+    echo "  - 2-autostart/examples/autostart-minimal.sh  (Template: Simplified autostart)"
     echo "  - 3-verification/post-reboot-check.sh     (Ready-to-use: Post-reboot verification)"
     echo "  - 3-verification/snapshot-compare.py      (Ready-to-use: Snapshot comparison)"
     echo ""
@@ -260,7 +260,7 @@ print_next_steps() {
 
 main() {
     echo "═══════════════════════════════════════════════════════════"
-    echo " Linux Server Reboot Management Installer v1.0.0"
+    echo " Linux Server Reboot Management Installer v1.1.1"
     echo "═══════════════════════════════════════════════════════════"
     echo ""
 
