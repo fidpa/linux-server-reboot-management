@@ -2,7 +2,7 @@
 # Copyright (c) 2026 Marc Allgeier (fidpa)
 # SPDX-License-Identifier: MIT
 # https://github.com/fidpa/linux-server-reboot-management
-# Version: 1.1.1
+# Version: 1.1.2
 
 # Post-Reboot Verification Script
 # Automated verification script that checks system state after reboot.

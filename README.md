@@ -1,6 +1,6 @@
 # Linux Server Reboot Management
 
-![Version](https://img.shields.io/badge/Version-1.1.1-blue.svg)
+![Version](https://img.shields.io/github/v/release/fidpa/linux-server-reboot-management?label=Version)
 ![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)
 ![Platform](https://img.shields.io/badge/Platform-Linux-blue?logo=linux)
 ![Bash](https://img.shields.io/badge/Bash-4.0%2B-blue?logo=gnubash)

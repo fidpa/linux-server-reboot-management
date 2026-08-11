@@ -28,3 +28,13 @@ jobs:
       - name: Validate Bash syntax
         run: |
           find . -name "*.sh" -not -path "./.git/*" -print0 | xargs -0 -I {} bash -n {}
+
+  version-consistency:
+    name: Version strings
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Verify all version strings agree
+        run: .github/version-check.sh

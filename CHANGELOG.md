@@ -7,6 +7,40 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.1.2] - 2026-08-11
+
+### Added
+- `.github/version-check.sh`: verifies that the seven hardcoded version strings
+  across six files agree with each other, and, when given a version, that they
+  match it and that the changelog has a section for it. Wired into the lint
+  workflow as a third job and into the release workflow as a step before the
+  release is cut, so a tag whose version the files do not carry fails instead
+  of publishing. This is the check that was missing when every version string
+  kept reporting 1.0.0 for the seven months after the 1.1.0 release. A reworded
+  version line fails the check as loudly as a wrong number: a pattern that
+  matches nothing means that file silently stopped being covered
+- A `Releasing` section in `CONTRIBUTING.md` describing the version sites and
+  how to verify them before tagging
+
+### Changed
+- **The README version badge now reads the latest release from GitHub** instead
+  of carrying a hardcoded number. It was the eighth place the version had to be
+  maintained by hand; it is now the only one that cannot go stale, and it is
+  deliberately not covered by `version-check.sh`
+- `.shellcheckrc` declared `severity=warning` while the lint workflow passes
+  `--severity=error` on the command line, which wins. The file documented a
+  standard nothing enforced, and now states the one that is enforced, along with
+  the three known findings a manual `warning` run produces
+
+### Fixed
+- **Seven of the twelve scripts were not executable**, among them `install.sh`,
+  `system-snapshot.sh`, `post-reboot-check.sh` and `snapshot-compare.py`. Every
+  one of those is invoked as `./name` in the documentation, including step 5 of
+  the README quick start, so a fresh clone answered the first command after the
+  reboot with "Permission denied". The mode is now `100755` in the index for all
+  of them
+- `docs/README.md` claimed a last-updated date from before the 1.1.1 release
+
 ## [1.1.1] - 2026-08-08
 
 ### Added
@@ -55,7 +89,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - JSON output for CI/CD integration
 - Proper escaping for special characters in container names/status
 
-[Unreleased]: https://github.com/fidpa/linux-server-reboot-management/compare/v1.1.1...HEAD
+[Unreleased]: https://github.com/fidpa/linux-server-reboot-management/compare/v1.1.2...HEAD
+[1.1.2]: https://github.com/fidpa/linux-server-reboot-management/compare/v1.1.1...v1.1.2
 [1.1.1]: https://github.com/fidpa/linux-server-reboot-management/compare/v1.1.0...v1.1.1
 [1.1.0]: https://github.com/fidpa/linux-server-reboot-management/compare/v1.0.0...v1.1.0
 [1.0.0]: https://github.com/fidpa/linux-server-reboot-management/releases/tag/v1.0.0

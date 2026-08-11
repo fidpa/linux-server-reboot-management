@@ -102,6 +102,26 @@ fix: graceful-shutdown script timeout calculation
 - Fixes #42
 ```
 
+## Releasing
+
+The version is written out in seven places across six files; nothing
+generates them. Bump them together, then verify before tagging:
+
+```bash
+# All version strings agree with each other
+.github/version-check.sh
+
+# ... and with the version you are about to tag, which also needs a
+# changelog section
+.github/version-check.sh 1.2.0
+```
+
+The same check runs in CI on every push and again in the release workflow
+before the release is cut, so a tag whose version the files do not carry fails
+rather than publishing. If you reword a version line, update the pattern in
+`.github/version-check.sh`: a pattern that matches nothing is treated as an
+error, because otherwise that file would quietly stop being checked.
+
 ## Code of Conduct
 
 This project adheres to the [Contributor Covenant Code of Conduct](CODE_OF_CONDUCT.md).

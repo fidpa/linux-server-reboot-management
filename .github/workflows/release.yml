@@ -16,6 +16,9 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Verify version strings match the tag
+        run: .github/version-check.sh "${GITHUB_REF#refs/tags/v}"
+
       - name: Extract changelog section
         run: |
           VERSION="${GITHUB_REF#refs/tags/v}"

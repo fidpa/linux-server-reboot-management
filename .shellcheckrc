@@ -47,6 +47,15 @@ source-path=SCRIPTDIR
 # Safely enables shellcheck to open sourced files where possible
 external-sources=true
 
-# Minimum severity threshold (focus on errors + warnings)
-# Consistent with script-audit.sh Production-Ready threshold (85%+ clean)
-severity=warning
+# Minimum severity threshold
+#
+# error, deliberately, and matching what CI enforces: .github/workflows/lint.yml
+# runs `shellcheck --severity=error`. This file previously declared `warning`
+# while the gate passed `--severity=error` on the command line, which wins. The
+# config therefore documented a standard nobody enforced.
+#
+# Running at `warning` is still worth doing by hand before a release; the known
+# findings at that level are three SC2034 "appears unused" (a colour constant
+# held in reserve, a documenting identifier, a switch inside an example script).
+# A fourth one would be new and worth looking at.
+severity=error

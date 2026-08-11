@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: MIT
 # https://github.com/fidpa/linux-server-reboot-management
 #
-# Version: 1.1.1
+# Version: 1.1.2
 # Created: 2026-01-20
 #
 # Linux Server Reboot Management Installer
@@ -260,7 +260,7 @@ print_next_steps() {
 
 main() {
     echo "═══════════════════════════════════════════════════════════"
-    echo " Linux Server Reboot Management Installer v1.1.1"
+    echo " Linux Server Reboot Management Installer v1.1.2"
     echo "═══════════════════════════════════════════════════════════"
     echo ""
 
