@@ -686,15 +686,15 @@ Each example is **intentionally focused** on a specific use case to make learnin
 Our actual production scripts (not in this public repo) are:
 - **Pi 5 Router**: Single 1443-line script
   - All 13 phases
-  - Device-specific checks (vcgencmd, Pi Zero fleet)
-  - Nextcloud integration via Vaultwarden
+  - Device-specific checks (vcgencmd, single-board device fleet)
+  - File-sync service integration via a secrets manager
   - Emergency recovery modes
 
 - **NAS Server**: Single 1139-line script
   - All 13 phases
   - LVM validation
   - Docker 18-container stack
-  - Nextcloud permission automation
+  - File-sync service permission automation
 
 ### Why Monolithic for Production?
 
@@ -768,11 +768,11 @@ sudo systemctl enable autostart.service
 
 ### Real-World Example
 
-Our Pi 5 Router script evolution:
+How the router script from that comparison grew:
 - **v1.0**: Started with autostart-minimal.sh (67 LOC)
 - **v2.0**: Added network phases from autostart-network-gateway.sh (+138 LOC)
 - **v3.0**: Added Docker phases from autostart-docker-stack.sh (+200 LOC)
-- **v4.0**: Custom phases (Pi Zero fleet, Nextcloud, WireGuard) (+500 LOC)
+- **v4.0**: Custom phases (single-board device fleet, file sync, VPN tunnel) (+500 LOC)
 - **v5.0**: Emergency recovery, metrics, optimization (+538 LOC)
 - **Current**: Monolithic 1443 LOC production script
 

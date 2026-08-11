@@ -73,7 +73,7 @@ sudo ./system-snapshot.sh pre-reboot
   "network": {
     "interfaces": [...],
     "routes": [...],
-    "default_gateway": "192.168.1.1"
+    "default_gateway": "192.0.2.1"
   },
   "storage": {
     "mounts": [

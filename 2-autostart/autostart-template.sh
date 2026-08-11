@@ -44,6 +44,16 @@ PID_FILE="${PID_FILE:-/var/run/autostart.pid}"
 BOOT_START_TIME=$(date +%s)
 MAX_BOOT_TIME=120  # Target: Complete boot in 120 seconds
 
+# Emergency recovery (see minimal_recovery_mode)
+#
+# RECOVERY_IP ships as an RFC 5737 documentation address, which is deliberately
+# unroutable: an address that only works by coincidence is worse than one that
+# announces itself as unset. Set it to a free address in your own subnet, or
+# recovery mode will log the placeholder and skip assigning it.
+RECOVERY_INTERFACE="${RECOVERY_INTERFACE:-eth0}"
+RECOVERY_IP="${RECOVERY_IP:-192.0.2.100}"
+RECOVERY_IP_PLACEHOLDER="192.0.2.100"
+
 # Feature Flags (customize for your environment)
 ENABLE_PROMETHEUS_METRICS="${ENABLE_PROMETHEUS_METRICS:-true}"
 ENABLE_RECOVERY_MODE="${ENABLE_RECOVERY_MODE:-true}"
@@ -704,35 +714,48 @@ minimal_recovery_mode() {
     log_error "⚠️ EMERGENCY RECOVERY MODE ACTIVATED"
 
     # Attempt to establish minimal SSH access on primary interface
-    # Customize interface name (eth0, enp0s3, etc.) for your system
-    local primary_interface="eth0"
-    local recovery_ip="192.168.1.100"  # Customize for your network
+    # Set RECOVERY_INTERFACE (eth0, enp0s3, ...) and RECOVERY_IP for your system
+    local primary_interface="$RECOVERY_INTERFACE"
+    local recovery_ip="$RECOVERY_IP"
+
+    if [[ "$recovery_ip" == "$RECOVERY_IP_PLACEHOLDER" ]]; then
+        log_error "RECOVERY_IP is still the documentation placeholder ${recovery_ip} —" \
+                  "set it to an address in your own subnet; skipping IP assignment"
+        recovery_ip=""
+    fi
 
     if ip link show "$primary_interface" &>/dev/null; then
         log_info "Attempting minimal SSH setup on $primary_interface..."
         ip link set "$primary_interface" up 2>/dev/null || true
-        ip addr add "${recovery_ip}/24" dev "$primary_interface" 2>/dev/null || true
+
+        # Bring up SSH regardless: without a configured recovery address the
+        # interface may still come up via DHCP, and a reachable daemon on an
+        # unknown address beats no daemon at all.
+        if [[ -n "$recovery_ip" ]]; then
+            ip addr add "${recovery_ip}/24" dev "$primary_interface" 2>/dev/null || true
+        fi
 
         # Start SSH if not running
         if ! systemctl is-active --quiet ssh; then
             systemctl start ssh 2>/dev/null || true
         fi
 
-        if ss -tln | grep -q "${recovery_ip}:22"; then
+        if [[ -n "$recovery_ip" ]] && ss -tln | grep -q "${recovery_ip}:22"; then
             log_success "✓ Emergency SSH available: ssh user@${recovery_ip}"
         fi
     fi
 
     # Write recovery status
+    local ssh_target="${recovery_ip:-<RECOVERY_IP unset — check the interface address>}"
     mkdir -p "$(dirname "$LOG_FILE")"
     cat > "$(dirname "$LOG_FILE")/recovery-mode.log" <<EOF
 RECOVERY MODE ACTIVATED: $(date)
 REASON: Critical system failure during autostart
-SSH ACCESS: ${recovery_ip}:22 (${primary_interface})
+SSH ACCESS: ${ssh_target}:22 (${primary_interface})
 LOG FILE: ${LOG_FILE}
 
 NEXT STEPS:
-  1. SSH into system: ssh user@${recovery_ip}
+  1. SSH into system: ssh user@${ssh_target}
   2. Check logs: journalctl -u autostart.service
   3. Manual service start: systemctl start <service>
   4. Review: ${LOG_FILE}
@@ -740,7 +763,7 @@ EOF
 
     # Log to systemd
     if command -v logger >/dev/null 2>&1; then
-        logger -t "autostart-recovery" "Recovery mode: Manual intervention required - SSH: ${recovery_ip}"
+        logger -t "autostart-recovery" "Recovery mode: Manual intervention required - SSH: ${ssh_target}"
     fi
 
     log_error "Manual intervention required - check $(dirname "$LOG_FILE")/recovery-mode.log"

@@ -160,12 +160,16 @@ chmod +x /opt/my-autostart.sh
 
 #### 2. Update Configuration
 
-Edit lines 40-57:
+Edit the `CONFIGURATION` block near the top of the script:
 ```bash
 LOG_FILE="/var/log/my-app-autostart.log"
 LOCK_FILE="/var/run/my-app-autostart.lock"
 PID_FILE="/var/run/my-app-autostart.pid"
 MAX_BOOT_TIME=180  # Adjust for your environment
+
+# Emergency recovery (see minimal_recovery_mode)
+RECOVERY_INTERFACE="${RECOVERY_INTERFACE:-eth0}"
+RECOVERY_IP="${RECOVERY_IP:-192.0.2.100}"
 
 # Feature Flags (customize for your environment)
 ENABLE_PROMETHEUS_METRICS="${ENABLE_PROMETHEUS_METRICS:-true}"
@@ -173,6 +177,12 @@ ENABLE_RECOVERY_MODE="${ENABLE_RECOVERY_MODE:-true}"
 ENABLE_DOCKER_STACK="${ENABLE_DOCKER_STACK:-true}"
 ENABLE_PHASE_TIMING="${ENABLE_PHASE_TIMING:-true}"
 ```
+
+**Recovery Settings Explained**:
+- `RECOVERY_INTERFACE`: Interface emergency recovery brings up
+- `RECOVERY_IP`: Emergency address. The shipped `192.0.2.100` is an RFC 5737
+  documentation address and is deliberately unroutable — recovery mode logs it
+  as unconfigured and skips assigning it. Set a free address in your own subnet
 
 **Feature Flags Explained**:
 - `ENABLE_PROMETHEUS_METRICS`: Export boot metrics to `/var/lib/node_exporter/textfile_collector/`

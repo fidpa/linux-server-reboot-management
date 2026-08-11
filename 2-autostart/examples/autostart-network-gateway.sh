@@ -102,7 +102,7 @@ main() {
 
     # Example: iptables MASQUERADE for LAN
     if command -v iptables &>/dev/null; then
-        local lan_subnet="192.168.1.0/24"
+        local lan_subnet="192.0.2.0/24"  # RFC 5737 placeholder — set your real LAN subnet
 
         # Check if rule exists
         if ! iptables -t nat -C POSTROUTING -s "$lan_subnet" -o "$wan_iface" -j MASQUERADE 2>/dev/null; then

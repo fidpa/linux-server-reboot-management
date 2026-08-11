@@ -7,6 +7,43 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.2.0] - 2026-08-11
+
+### Added
+- `RECOVERY_INTERFACE` and `RECOVERY_IP` are now configuration variables in the
+  autostart template, overridable from the environment like the existing
+  feature flags. The recovery interface and address previously had to be edited
+  inside `minimal_recovery_mode()`
+
+### Changed
+- **Emergency recovery no longer assigns an unconfigured address.** `RECOVERY_IP`
+  ships as `192.0.2.100`, an RFC 5737 documentation address. While it is
+  unchanged, recovery mode logs it as unconfigured and skips the `ip addr add`
+  instead of claiming the address. SSH is still started, so a DHCP lease on the
+  interface remains usable, and the recovery log names the interface to check
+  rather than printing an address nobody can reach
+- Documentation examples use RFC 5737 addresses throughout. The snapshot example
+  gateway in `0-pre-reboot/README.md` and the NAT subnet in
+  `autostart-network-gateway.sh` were RFC 1918 addresses from the most common
+  home subnet, which reads as a working value rather than as a placeholder
+- The architecture comparison describes the production stack by function
+  (file-sync service, secrets manager, VPN tunnel) rather than by product name
+- `docs/TEMPLATES.md` points at the `CONFIGURATION` block by name instead of a
+  line range, which the added variables would have invalidated
+
+### Upgrade notes
+
+- **Set `RECOVERY_IP` before the next reboot if you rely on emergency recovery.**
+  Hosts that used the previous hardcoded `192.168.1.100` — either as-is or
+  because it happened to fit their subnet — will no longer get that address
+  assigned when recovery mode triggers. Export `RECOVERY_IP` (and
+  `RECOVERY_INTERFACE` if not `eth0`) in the unit drop-in, or edit the
+  `CONFIGURATION` block in your copy of the template. Recovery mode logs loudly
+  when the placeholder is still in place, but it logs at the moment you are
+  least able to read it
+- Copies of `autostart-network-gateway.sh` keep their own `lan_subnet`; the
+  changed example does not reach an already-customized script
+
 ## [1.1.2] - 2026-08-11
 
 ### Added
@@ -89,7 +126,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - JSON output for CI/CD integration
 - Proper escaping for special characters in container names/status
 
-[Unreleased]: https://github.com/fidpa/linux-server-reboot-management/compare/v1.1.2...HEAD
+[Unreleased]: https://github.com/fidpa/linux-server-reboot-management/compare/v1.2.0...HEAD
+[1.2.0]: https://github.com/fidpa/linux-server-reboot-management/compare/v1.1.2...v1.2.0
 [1.1.2]: https://github.com/fidpa/linux-server-reboot-management/compare/v1.1.1...v1.1.2
 [1.1.1]: https://github.com/fidpa/linux-server-reboot-management/compare/v1.1.0...v1.1.1
 [1.1.0]: https://github.com/fidpa/linux-server-reboot-management/compare/v1.0.0...v1.1.0

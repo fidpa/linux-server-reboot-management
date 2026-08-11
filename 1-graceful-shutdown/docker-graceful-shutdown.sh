@@ -19,7 +19,7 @@
 #   Called automatically by systemd service during shutdown/reboot.
 #   DO NOT run manually unless testing.
 #
-# Version: 1.1.2
+# Version: 1.2.0
 #
 # Features:
 #   - Graceful container stop with configurable timeout (default: 30s)

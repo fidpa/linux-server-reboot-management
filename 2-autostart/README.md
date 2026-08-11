@@ -113,6 +113,8 @@ Control optional features via environment variables:
 | `ENABLE_RECOVERY_MODE` | `true` | Activate emergency recovery on critical failures |
 | `ENABLE_DOCKER_STACK` | `true` | Enable Docker container management |
 | `ENABLE_PHASE_TIMING` | `true` | Track per-phase timing metrics |
+| `RECOVERY_INTERFACE` | `eth0` | Interface used by emergency recovery |
+| `RECOVERY_IP` | `192.0.2.100` | Emergency address; the default is an RFC 5737 placeholder and is skipped until you set a real one |
 
 **Example:**
 ```bash
@@ -268,9 +270,13 @@ Automatically activated on critical failures (Phase 1, 3, 6):
 - Exit code 2 (distinguishable from general errors)
 
 **Customization:**
-Edit `minimal_recovery_mode()` to configure:
-- Primary network interface (default: eth0)
-- Recovery IP address (default: 192.168.1.100)
+Set these before the script runs (no need to edit `minimal_recovery_mode()`):
+- `RECOVERY_INTERFACE` — primary network interface (default: `eth0`)
+- `RECOVERY_IP` — emergency address, **must be set**. The default `192.0.2.100`
+  is an RFC 5737 documentation address and is deliberately unroutable: recovery
+  mode logs it as unconfigured and skips assigning it, rather than claiming an
+  address that happens to work on some networks and collides on others. SSH is
+  still started, so a DHCP lease on the interface remains usable
 - SSH access credentials
 
 **Recovery Log:** `<log_dir>/recovery-mode.log`
