@@ -152,7 +152,7 @@ Wants=network-online.target
 
 [Service]
 Type=oneshot
-ExecStart=/opt/autostart/autostart-template.sh
+ExecStart=/opt/yourdevice/autostart.sh
 RemainAfterExit=yes
 
 [Install]

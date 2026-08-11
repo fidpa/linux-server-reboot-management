@@ -19,7 +19,10 @@ config/
 | File | Purpose | Customization |
 |------|---------|---------------|
 | `systemd/docker-graceful-shutdown.service` | Graceful container shutdown hook | ✅ Copy as-is (update path if needed) |
-| `systemd/autostart.service` | 13-phase boot orchestration | ✅ Copy as-is (update path if needed) |
+
+This is the only unit that can be used as-is, because `install.sh` installs the
+script it points at. Boot orchestration is **not** in this category: the script
+it runs is a per-machine one, so its unit lives in `examples/` below.
 
 **Installation**:
 ```bash
@@ -27,11 +30,6 @@ config/
 sudo cp config/systemd/docker-graceful-shutdown.service /etc/systemd/system/
 sudo systemctl daemon-reload
 sudo systemctl enable docker-graceful-shutdown
-
-# Autostart orchestration
-sudo cp config/systemd/autostart.service /etc/systemd/system/
-sudo systemctl daemon-reload
-sudo systemctl enable autostart
 ```
 
 See [1-graceful-shutdown/README.md](../1-graceful-shutdown/README.md) and [2-autostart/README.md](../2-autostart/README.md) for detailed setup.
@@ -44,8 +42,16 @@ See [1-graceful-shutdown/README.md](../1-graceful-shutdown/README.md) and [2-aut
 
 | File | Use Case | Customization |
 |------|----------|---------------|
+| `examples/autostart.service` | 13-phase boot orchestration | ⚠️ Update: `ExecStart` path, `User`; adapt the template it points at first |
 | `examples/docker-host.service` | Docker host (simple) | ⚠️ Update: `User`, `ExecStop` path, security settings |
 | `examples/gateway-server.service` | Network gateway (complex) | ⚠️ Update: `User`, `ExecStop` path, `ReadOnlyPaths`, `Environment` |
+
+**`examples/autostart.service` in particular**: its `ExecStart` is the
+placeholder `/opt/yourdevice/autostart.sh` and no installer creates it. Point
+it at your own adapted copy of `2-autostart/autostart-template.sh`. That
+template refuses to run while its `TEMPLATE_UNCONFIGURED` marker is present, so
+enabling this unit against an unedited copy fails at boot with exit code 78
+instead of running generic phases as root.
 
 **Differences from systemd/ templates**:
 - Placeholder values (`youruser`, `/opt/yourdevice/`)

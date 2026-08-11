@@ -12,9 +12,14 @@ RemainAfterExit=no
 # Change to your service user (e.g., root, admin)
 User=root
 
-# ExecStart runs the 13-phase boot orchestration
-# IMPORTANT: Update this path to match your installation!
-ExecStart=/opt/linux-server-reboot-management/2-autostart/autostart-template.sh
+# ExecStart runs the 13-phase boot orchestration.
+#
+# This is a placeholder path and no installer creates it. Point it at YOUR
+# adapted copy of 2-autostart/autostart-template.sh. The template refuses to
+# run until you have removed its TEMPLATE_UNCONFIGURED marker, so enabling this
+# unit against an unedited copy fails at boot rather than running generic
+# phases as root.
+ExecStart=/opt/yourdevice/autostart.sh
 
 # Timeout for boot orchestration (adjust based on complexity)
 # 300s = 5 minutes (sufficient for most setups)

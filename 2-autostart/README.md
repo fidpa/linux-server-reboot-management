@@ -23,7 +23,7 @@ A 13-phase boot orchestration that:
 
 ### What's in This Directory
 
-- **`autostart-template.sh`** (792 LOC): Full 13-phase reference implementation
+- **`autostart-template.sh`** (864 LOC): Full 13-phase reference implementation
 - **`examples/*.sh`**: Focused use-case demonstrations (67-205 LOC each)
 
 ### What You Should Deploy
@@ -54,25 +54,34 @@ These scripts evolved from `autostart-template.sh` + relevant example patterns.
 ## Quick Start
 
 ```bash
-# 1. Create installation directory and copy template
-sudo mkdir -p /opt/linux-server-reboot-management/2-autostart
-sudo cp autostart-template.sh /opt/linux-server-reboot-management/2-autostart/
-sudo chmod +x /opt/linux-server-reboot-management/2-autostart/autostart-template.sh
+# 1. Copy the template to a path you own. It becomes YOUR script, not a
+#    managed file — no installer writes here and no update overwrites it.
+sudo mkdir -p /opt/yourdevice
+sudo cp autostart-template.sh /opt/yourdevice/autostart.sh
+sudo chmod +x /opt/yourdevice/autostart.sh
 
-# 2. Edit phases for your environment
-sudo nano /opt/linux-server-reboot-management/2-autostart/autostart-template.sh
+# 2. Adapt the 13 phases for this machine, then delete the
+#    TEMPLATE_UNCONFIGURED line in the CONFIGURATION block. Until you do,
+#    the script exits 78 and refuses to run.
+sudo nano /opt/yourdevice/autostart.sh
 
-# 3. Install systemd service (path matches service file)
-sudo cp ../config/systemd/autostart.service /etc/systemd/system/
+# 3. Test before wiring it to boot. Expect exit 0; exit 78 means step 2
+#    is not finished.
+sudo /opt/yourdevice/autostart.sh; echo "exit=$?"
+
+# 4. Install the systemd unit and point ExecStart at your script
+sudo cp ../config/examples/autostart.service /etc/systemd/system/
+sudo nano /etc/systemd/system/autostart.service   # set ExecStart, User
 sudo systemctl daemon-reload
 sudo systemctl enable autostart
-
-# 4. Test (without reboot)
-sudo /opt/linux-server-reboot-management/2-autostart/autostart-template.sh
 
 # 5. Reboot to verify
 sudo reboot
 ```
+
+The order matters: testing the script by hand (step 3) before enabling the unit
+(step 4) is what keeps a broken boot sequence out of the boot path, where the
+only way to read the error is a console.
 
 ## 13-Phase Architecture
 
@@ -121,7 +130,7 @@ Control optional features via environment variables:
 # Disable Docker and Prometheus
 export ENABLE_DOCKER_STACK=false
 export ENABLE_PROMETHEUS_METRICS=false
-/opt/autostart/autostart-template.sh
+/opt/yourdevice/autostart.sh
 ```
 
 ## Customization
@@ -321,7 +330,7 @@ cat /var/lib/node_exporter/textfile_collector/autostart.prom
 
 | File | Purpose | Lines | Use Case |
 |------|---------|-------|----------|
-| `autostart-template.sh` | Full 13-phase template | ~792 | Production baseline |
+| `autostart-template.sh` | Full 13-phase template | ~864 | Production baseline |
 | `examples/autostart-minimal.sh` | Minimal implementation | ~70 | Learning/simple setups |
 | `examples/autostart-docker-stack.sh` | Multi-tier Docker startup | ~167 | Container platforms |
 | `examples/autostart-network-gateway.sh` | Network foundation | ~205 | Router/gateway systems |

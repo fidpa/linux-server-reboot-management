@@ -757,12 +757,17 @@ cp autostart-template.sh /opt/mydevice/autostart.sh
 # - Hardware checks (temperature, storage)
 # - Device-specific services
 # - Custom recovery modes
+
+# Then release the adaptation marker: delete the TEMPLATE_UNCONFIGURED line
+# in the CONFIGURATION block. Until then the script exits 78.
 ```
 
 **Phase 4: Deploy** (production-ready)
 ```bash
-# Single file deployment
-sudo cp /opt/mydevice/autostart.sh /opt/autostart/
+# Verify it runs by hand before putting it in the boot path
+sudo /opt/mydevice/autostart.sh; echo "exit=$?"   # 78 = marker still set
+
+# Point the unit at it (config/examples/autostart.service, ExecStart)
 sudo systemctl enable autostart.service
 ```
 

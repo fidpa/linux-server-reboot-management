@@ -158,6 +158,11 @@ cp 2-autostart/autostart-template.sh /opt/my-autostart.sh
 chmod +x /opt/my-autostart.sh
 ```
 
+The copy refuses to run until you finish adapting it: the `CONFIGURATION` block
+carries a `TEMPLATE_UNCONFIGURED=true` line, and while it is present the script
+exits 78 (`EX_CONFIG`) without touching the system. Delete that line as the last
+step, once the phases below match this machine.
+
 #### 2. Update Configuration
 
 Edit the `CONFIGURATION` block near the top of the script:

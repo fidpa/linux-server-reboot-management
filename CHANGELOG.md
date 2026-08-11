@@ -7,6 +7,56 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.3.0] - 2026-08-11
+
+### Added
+- **`autostart-template.sh` refuses to run while it is unadapted.** The
+  `CONFIGURATION` block carries a `TEMPLATE_UNCONFIGURED=true` marker; while it
+  is present the script exits 78 (`EX_CONFIG`) with an explanation on stderr and
+  in the journal, before touching the system. Delete the line once the phases
+  match the machine. The failure this prevents is a systemd unit running generic
+  reference phases as root on every boot
+
+### Changed
+- **`config/systemd/autostart.service` moved to `config/examples/autostart.service`.**
+  It was documented as "copy & use as-is" while its `ExecStart` pointed at
+  `/opt/linux-server-reboot-management/2-autostart/autostart-template.sh`, a
+  path no installer creates. Boot orchestration is a per-machine script by
+  design, so its unit belongs with the other units that must be adapted
+- `ExecStart` in that unit is now the placeholder `/opt/yourdevice/autostart.sh`,
+  matching the placeholder convention the `examples/` units already use. The
+  previous value looked like an installed path and read as a working default
+- `config/README.md` no longer lists boot orchestration as production-ready and
+  drops the copy-and-enable recipe for it. The `systemd/` table now holds only
+  the graceful shutdown hook, which is the one unit whose target `install.sh`
+  actually installs
+- The quick start in `2-autostart/README.md` deploys to a path the operator
+  owns, tests the script by hand before enabling the unit, and names the marker
+  step. It previously created the mismatched `/opt/.../2-autostart/` path and
+  enabled the unit before any manual run
+- `main` only runs when the script is executed, not when sourced. Sourcing is
+  the documented way to test individual phases, and it previously ran the whole
+  13-phase orchestration in the caller's shell
+- Deployment examples in `docs/ARCHITECTURE.md` and `docs/TEMPLATES.md` cover
+  the marker and the manual verification run
+- Line counts for `autostart-template.sh` in `README.md` and
+  `2-autostart/README.md` corrected to 864
+
+### Upgrade notes
+
+- **Existing deployments are unaffected and need no action.** The marker lives
+  in the repository template, not in your adapted copy: a script you already
+  customized has no `TEMPLATE_UNCONFIGURED` line and keeps running unchanged.
+  Only a fresh copy of the template carries it
+- **If you copy the template again**, delete the `TEMPLATE_UNCONFIGURED` line
+  after adapting the phases, or the next boot logs `exit 78` and starts nothing
+- **If you script the unit installation**, the copy source changed:
+  `config/systemd/autostart.service` → `config/examples/autostart.service`. The
+  unit is no longer usable unedited; set `ExecStart` to your own script path
+- **If you enabled the unit as shipped**, it pointed at a path that does not
+  exist and the service has been failing at boot. Check with
+  `systemctl status autostart` and set `ExecStart` to your adapted script
+
 ## [1.2.0] - 2026-08-11
 
 ### Added
@@ -126,7 +176,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - JSON output for CI/CD integration
 - Proper escaping for special characters in container names/status
 
-[Unreleased]: https://github.com/fidpa/linux-server-reboot-management/compare/v1.2.0...HEAD
+[Unreleased]: https://github.com/fidpa/linux-server-reboot-management/compare/v1.3.0...HEAD
+[1.3.0]: https://github.com/fidpa/linux-server-reboot-management/compare/v1.2.0...v1.3.0
 [1.2.0]: https://github.com/fidpa/linux-server-reboot-management/compare/v1.1.2...v1.2.0
 [1.1.2]: https://github.com/fidpa/linux-server-reboot-management/compare/v1.1.1...v1.1.2
 [1.1.1]: https://github.com/fidpa/linux-server-reboot-management/compare/v1.1.0...v1.1.1

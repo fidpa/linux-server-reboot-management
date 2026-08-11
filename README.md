@@ -96,7 +96,7 @@ cd ../3-verification
 | File | Use Case | Complexity |
 |------|----------|-----------|
 | `autostart-minimal.sh` | Simple setups (<10 services) | 3 phases, ~66 LOC |
-| `autostart-template.sh` | Production (dependency chains) | 13 phases, ~815 LOC, 5 helper functions, 4 feature flags |
+| `autostart-template.sh` | Production (dependency chains) | 13 phases, ~864 LOC, 5 helper functions, 4 feature flags, 2 recovery settings |
 | `autostart-docker-stack.sh` | Multi-tier Docker startup | 5-tier container startup, ~167 LOC |
 | `autostart-network-gateway.sh` | Network gateway/router | NAT/Firewall/VPN setup, ~209 LOC |
 | `autostart-database-server.sh` | Database-centric servers | Database priority startup, ~200 LOC |

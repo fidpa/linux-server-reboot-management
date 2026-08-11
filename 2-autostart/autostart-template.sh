@@ -23,7 +23,7 @@
 #
 #   [Service]
 #   Type=oneshot
-#   ExecStart=/opt/linux-server-reboot-management/2-autostart/autostart-template.sh
+#   ExecStart=/opt/yourdevice/autostart.sh
 #   RemainAfterExit=no
 #   StandardOutput=journal
 #   StandardError=journal
@@ -37,6 +37,14 @@ set -uo pipefail
 # ============================================================================
 # CONFIGURATION
 # ============================================================================
+
+# Adaptation marker — DELETE THIS LINE once you have adapted the phases below.
+#
+# The phases in this file are a reference implementation, not a working boot
+# sequence for any particular machine. While this marker is present the script
+# refuses to run, because the failure it prevents is expensive: a systemd unit
+# pointed at an unedited copy would run generic phases as root on every boot.
+TEMPLATE_UNCONFIGURED=true
 
 LOG_FILE="${LOG_FILE:-/var/log/autostart.log}"
 LOCK_FILE="${LOCK_FILE:-/var/run/autostart.lock}"
@@ -805,6 +813,20 @@ trap cleanup_on_exit EXIT
 # ============================================================================
 
 main() {
+    # Refuse to run an unadapted template. Checked here rather than at file
+    # scope so that `source autostart-template.sh` still works for testing
+    # individual phases (see docs/ARCHITECTURE.md, "Testing Phases").
+    if [[ "${TEMPLATE_UNCONFIGURED:-false}" == "true" ]]; then
+        echo "autostart-template.sh: refusing to run — this is an unadapted template." >&2
+        echo "  Adapt the 13 phases for this machine, then delete the" >&2
+        echo "  TEMPLATE_UNCONFIGURED line in the CONFIGURATION block." >&2
+        echo "  See 2-autostart/README.md and docs/TEMPLATES.md." >&2
+        command -v logger >/dev/null 2>&1 && \
+            logger -t "autostart" -p user.err \
+                "Refused to run: unadapted autostart template (TEMPLATE_UNCONFIGURED still set)"
+        exit 78   # EX_CONFIG
+    fi
+
     # Ensure log directory exists before first log call
     mkdir -p "$(dirname "$LOG_FILE")"
 
@@ -834,5 +856,9 @@ main() {
     GRACEFUL_SHUTDOWN=true
 }
 
-# Run main
-main "$@"
+# Run main, but only when executed — not when sourced. docs/ARCHITECTURE.md
+# documents `source autostart-template.sh` for testing individual phases, which
+# would otherwise run the whole 13-phase orchestration in the caller's shell.
+if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
+    main "$@"
+fi
