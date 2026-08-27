@@ -7,36 +7,79 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [1.3.0] - 2026-08-11
+## [1.3.1] - 2026-08-27: Release notes match the tag they are published under
+
+An editorial pass over the whole changelog. The older sections were checked against the
+tags they describe and corrected where the tree contradicted them; the corrections are
+listed below, each as its own entry. No shipped behaviour changed: the scripts, the units
+and the documentation are the same as in 1.3.0, and every measured value, path and
+function name in the older sections was kept.
+
+### Changed
+
+- **Release titles no longer repeat the version number.** `release.yml` reads the
+  headline from the changelog heading (`## [X.Y.Z] - YYYY-MM-DD: <headline>`) and passes
+  it to `softprops/action-gh-release` as `name`. Without it the action falls back to the
+  tag, which is what the five published releases showed. A heading without a headline
+  logs a warning in the workflow instead of silently falling back
+- **The release body no longer starts with a blank line.** The extraction step strips
+  leading blank lines (`sed -e '/./,$!d'`), so the published body is a byte-for-byte copy
+  of its changelog section
+- **The compare links for the two January sections resolve.** They referenced a `v1.0.0`
+  tag that was never pushed, so both answered with 404. `[1.0.0]` now points at the
+  initial commit and `[1.1.0]` compares that commit against its tag. No tag was created
+  or moved
+- **The 1.1.0 section lists what that release actually shipped.** `install.sh`,
+  `CONTRIBUTING.md`, `SECURITY.md`, `CODE_OF_CONDUCT.md` and `docs/README.md` arrived
+  with that tag and were named nowhere; `install.sh` was credited to the initial release,
+  whose tree does not contain it
+- **The 1.1.1 section names the three scripts whose version line moved.** It claimed four
+  phase scripts; `2-autostart/autostart-template.sh` carries no `# Version:` line and was
+  not touched by that release
+- **The 1.1.2 section says which version strings were stale and for how long.** The seven
+  places covered by `.github/version-check.sh` reported 1.0.0; the README badge, which
+  that section counts separately as the eighth site, reported 1.1.0. The gap between the
+  1.1.0 and 1.1.1 releases was six months, not seven
+- **Every entry now opens with what the release changes for the operator**, and the
+  implementation follows in the paragraph. Each section also opens with the incident it
+  belongs to. Em dashes and the arrow character were replaced by the punctuation or the
+  word they stood for
+
+## [1.3.0] - 2026-08-11: The autostart template refuses to boot unadapted
+
+`config/systemd/autostart.service` was documented as a copy-and-enable unit while its
+`ExecStart` pointed at `/opt/linux-server-reboot-management/2-autostart/autostart-template.sh`,
+a path no installer creates. Anyone who followed that recipe got a unit that failed at
+every boot. The template itself is a 13-phase reference implementation meant to be
+adapted, so the failure mode on the other side is worse: a unit that does start, running
+generic reference phases as root.
 
 ### Added
 - **`autostart-template.sh` refuses to run while it is unadapted.** The
   `CONFIGURATION` block carries a `TEMPLATE_UNCONFIGURED=true` marker; while it
   is present the script exits 78 (`EX_CONFIG`) with an explanation on stderr and
   in the journal, before touching the system. Delete the line once the phases
-  match the machine. The failure this prevents is a systemd unit running generic
-  reference phases as root on every boot
+  match the machine
 
 ### Changed
-- **`config/systemd/autostart.service` moved to `config/examples/autostart.service`.**
-  It was documented as "copy & use as-is" while its `ExecStart` pointed at
-  `/opt/linux-server-reboot-management/2-autostart/autostart-template.sh`, a
-  path no installer creates. Boot orchestration is a per-machine script by
-  design, so its unit belongs with the other units that must be adapted
-- `ExecStart` in that unit is now the placeholder `/opt/yourdevice/autostart.sh`,
-  matching the placeholder convention the `examples/` units already use. The
-  previous value looked like an installed path and read as a working default
-- `config/README.md` no longer lists boot orchestration as production-ready and
+- **The autostart unit is now an example, not a recipe.**
+  `config/systemd/autostart.service` moved to `config/examples/autostart.service`. Boot
+  orchestration is a per-machine script by design, so its unit belongs with the other
+  units that must be adapted before use
+- **The unit no longer looks installed.** `ExecStart` is the placeholder
+  `/opt/yourdevice/autostart.sh`, matching the convention the `examples/` units already
+  use. The previous value read as a working default
+- **`config/README.md` no longer offers boot orchestration as production-ready** and
   drops the copy-and-enable recipe for it. The `systemd/` table now holds only
   the graceful shutdown hook, which is the one unit whose target `install.sh`
   actually installs
-- The quick start in `2-autostart/README.md` deploys to a path the operator
-  owns, tests the script by hand before enabling the unit, and names the marker
-  step. It previously created the mismatched `/opt/.../2-autostart/` path and
-  enabled the unit before any manual run
-- `main` only runs when the script is executed, not when sourced. Sourcing is
-  the documented way to test individual phases, and it previously ran the whole
-  13-phase orchestration in the caller's shell
+- **The quick start in `2-autostart/README.md` deploys to a path the operator owns.** It
+  tests the script by hand before enabling the unit and names the marker step; it
+  previously created the mismatched `/opt/.../2-autostart/` path and enabled the unit
+  before any manual run
+- **Sourcing the template no longer runs the whole orchestration.** `main` runs behind a
+  `${BASH_SOURCE[0]} == ${0}` guard, so `source autostart-template.sh`, the documented
+  way to test individual phases, no longer executes all 13 phases in the caller's shell
 - Deployment examples in `docs/ARCHITECTURE.md` and `docs/TEMPLATES.md` cover
   the marker and the manual verification run
 - Line counts for `autostart-template.sh` in `README.md` and
@@ -50,20 +93,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   Only a fresh copy of the template carries it
 - **If you copy the template again**, delete the `TEMPLATE_UNCONFIGURED` line
   after adapting the phases, or the next boot logs `exit 78` and starts nothing
-- **If you script the unit installation**, the copy source changed:
-  `config/systemd/autostart.service` → `config/examples/autostart.service`. The
+- **If you script the unit installation**, the copy source changed from
+  `config/systemd/autostart.service` to `config/examples/autostart.service`. The
   unit is no longer usable unedited; set `ExecStart` to your own script path
 - **If you enabled the unit as shipped**, it pointed at a path that does not
   exist and the service has been failing at boot. Check with
   `systemctl status autostart` and set `ExecStart` to your adapted script
 
-## [1.2.0] - 2026-08-11
+## [1.2.0] - 2026-08-11: Emergency recovery no longer claims an unconfigured address
+
+`minimal_recovery_mode()` is what runs when the boot orchestration has already failed. It
+assigned a hardcoded `192.168.1.100`, a value from the most common home subnet that the
+operator had no way of setting without editing the function, and it printed that address
+as the one to connect to. On a host
+whose subnet differs, that is an address nobody can reach, announced at the moment the
+operator is least able to check.
 
 ### Added
-- `RECOVERY_INTERFACE` and `RECOVERY_IP` are now configuration variables in the
-  autostart template, overridable from the environment like the existing
-  feature flags. The recovery interface and address previously had to be edited
-  inside `minimal_recovery_mode()`
+- **The recovery interface and address are configurable without editing the script.**
+  `RECOVERY_INTERFACE` and `RECOVERY_IP` are configuration variables in the autostart
+  template, overridable from the environment like the existing feature flags. Both
+  previously had to be edited inside `minimal_recovery_mode()`
 
 ### Changed
 - **Emergency recovery no longer assigns an unconfigured address.** `RECOVERY_IP`
@@ -72,20 +122,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   instead of claiming the address. SSH is still started, so a DHCP lease on the
   interface remains usable, and the recovery log names the interface to check
   rather than printing an address nobody can reach
-- Documentation examples use RFC 5737 addresses throughout. The snapshot example
-  gateway in `0-pre-reboot/README.md` and the NAT subnet in
-  `autostart-network-gateway.sh` were RFC 1918 addresses from the most common
-  home subnet, which reads as a working value rather than as a placeholder
-- The architecture comparison describes the production stack by function
+- **Documentation addresses can no longer be mistaken for working values.** The snapshot
+  example gateway in `0-pre-reboot/README.md` and the NAT subnet in
+  `autostart-network-gateway.sh` were RFC 1918 addresses from the most common home
+  subnet; the examples use RFC 5737 addresses throughout
+- **The architecture comparison describes the production stack by function**
   (file-sync service, secrets manager, VPN tunnel) rather than by product name
-- `docs/TEMPLATES.md` points at the `CONFIGURATION` block by name instead of a
-  line range, which the added variables would have invalidated
+- **`docs/TEMPLATES.md` survives edits to the template.** It points at the
+  `CONFIGURATION` block by name instead of a line range, which the added variables
+  would have invalidated
 
 ### Upgrade notes
 
 - **Set `RECOVERY_IP` before the next reboot if you rely on emergency recovery.**
-  Hosts that used the previous hardcoded `192.168.1.100` — either as-is or
-  because it happened to fit their subnet — will no longer get that address
+  Hosts that used the previous hardcoded `192.168.1.100`, whether as-is or
+  because it happened to fit their subnet, will no longer get that address
   assigned when recovery mode triggers. Export `RECOVERY_IP` (and
   `RECOVERY_INTERFACE` if not `eth0`) in the unit drop-in, or edit the
   `CONFIGURATION` block in your copy of the template. Recovery mode logs loudly
@@ -94,92 +145,130 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Copies of `autostart-network-gateway.sh` keep their own `lan_subnet`; the
   changed example does not reach an already-customized script
 
-## [1.1.2] - 2026-08-11
+## [1.1.2] - 2026-08-11: A failed check instead of a discovery for stale version strings
+
+The version appears in seven hardcoded places across six files, and nothing generates
+them. After the 1.1.0 release all seven kept reporting 1.0.0, including the banner
+`install.sh` prints on every run, and stayed that way for the six months until 1.1.1.
+Nothing was watching for it. The same pass found that seven of the twelve scripts in the
+tree had never been marked executable, although the documentation invokes them as
+`./name`.
 
 ### Added
-- `.github/version-check.sh`: verifies that the seven hardcoded version strings
+- **A wrong version number now fails the build instead of shipping.**
+  `.github/version-check.sh` verifies that the seven hardcoded version strings
   across six files agree with each other, and, when given a version, that they
-  match it and that the changelog has a section for it. Wired into the lint
-  workflow as a third job and into the release workflow as a step before the
-  release is cut, so a tag whose version the files do not carry fails instead
-  of publishing. This is the check that was missing when every version string
-  kept reporting 1.0.0 for the seven months after the 1.1.0 release. A reworded
+  match it and that the changelog has a section for it. It runs as a third job in the
+  lint workflow and as a step in the release workflow before the release is cut, so a
+  tag whose version the files do not carry fails instead of publishing. A reworded
   version line fails the check as loudly as a wrong number: a pattern that
   matches nothing means that file silently stopped being covered
-- A `Releasing` section in `CONTRIBUTING.md` describing the version sites and
-  how to verify them before tagging
+- **`CONTRIBUTING.md` documents the release check.** A `Releasing` section describes the
+  version sites and how to verify them before tagging
 
 ### Changed
-- **The README version badge now reads the latest release from GitHub** instead
-  of carrying a hardcoded number. It was the eighth place the version had to be
-  maintained by hand; it is now the only one that cannot go stale, and it is
-  deliberately not covered by `version-check.sh`
-- `.shellcheckrc` declared `severity=warning` while the lint workflow passes
-  `--severity=error` on the command line, which wins. The file documented a
-  standard nothing enforced, and now states the one that is enforced, along with
-  the three known findings a manual `warning` run produces
+- **The README version badge cannot go stale.** It reads the latest release from GitHub
+  instead of carrying a hardcoded number. It was the eighth place the version had to be
+  maintained by hand, and it is deliberately not covered by `version-check.sh`
+- **`.shellcheckrc` now states the severity that is actually enforced.** It declared
+  `severity=warning` while the lint workflow passes `--severity=error` on the command
+  line, which wins, so the file documented a standard nothing enforced. It also lists the
+  three known SC2034 findings a manual `warning` run produces
 
 ### Fixed
-- **Seven of the twelve scripts were not executable**, among them `install.sh`,
+- **A fresh clone answered the first command after the reboot with "Permission denied".**
+  Seven of the twelve scripts were not executable, among them `install.sh`,
   `system-snapshot.sh`, `post-reboot-check.sh` and `snapshot-compare.py`. Every
   one of those is invoked as `./name` in the documentation, including step 5 of
-  the README quick start, so a fresh clone answered the first command after the
-  reboot with "Permission denied". The mode is now `100755` in the index for all
-  of them
-- `docs/README.md` claimed a last-updated date from before the 1.1.1 release
+  the README quick start. The mode is now `100755` in the index for all of them
+- **`docs/README.md` no longer claims a last-updated date from before the 1.1.1 release**
 
-## [1.1.1] - 2026-08-08
+## [1.1.1] - 2026-08-08: Release pages carry the changelog instead of a bare link
+
+The 1.1.0 release page showed a single "Full Changelog" link and none of the actual
+changes, because the notes were generated from commit messages and this repository's
+commit messages are bare version numbers. The same release had left the version strings
+behind: the installer greeted users with "Installer v1.0.0" months after 1.1.0 shipped.
 
 ### Added
-- Issue templates for bug reports and feature requests, tailored to the
-  three-phase reboot workflow (affected phase, journal commands, unit
-  configuration, impact on existing setups)
-- Pull request template with a testing and documentation checklist
+- **Issue reports arrive with the context this workflow needs.** Templates for bug
+  reports and feature requests ask for the affected phase, journal commands, unit
+  configuration and the impact on existing setups
+- **Pull requests carry a testing and documentation checklist**
 
 ### Changed
-- Release notes are now extracted from this changelog instead of being
-  generated from commit messages. The v1.1.0 release page carried a single
-  "Full Changelog" link and none of the actual changes, because the commit
-  history consists of bare version numbers
-- `.shellcheckrc` header now describes this repository instead of an unrelated
+- **Release notes are extracted from this changelog** instead of being generated from
+  commit messages, so a release page shows what changed rather than a link to the diff
+- **`.shellcheckrc` header describes this repository** instead of an unrelated
   multi-device setup
 
 ### Fixed
-- Version strings across `install.sh`, all four phase scripts,
-  `snapshot-compare.py` and `docs/README.md` were still reporting 1.0.0 after
-  the 1.1.0 release. The installer greeted users with "Installer v1.0.0"
-- Template listing in `install.sh` pointed to `2-autostart/autostart-minimal.sh`
-  instead of `2-autostart/examples/autostart-minimal.sh`
-- Removed a "Question or Discussion" contact link from the issue chooser that
-  pointed to GitHub Discussions, which is not enabled for this repository
+- **The installer no longer announces a version it is not.** The version strings in
+  `install.sh`, `0-pre-reboot/system-snapshot.sh`,
+  `1-graceful-shutdown/docker-graceful-shutdown.sh`,
+  `3-verification/post-reboot-check.sh`, `3-verification/snapshot-compare.py` and
+  `docs/README.md` were still reporting 1.0.0 after the 1.1.0 release
+- **The template listing in `install.sh` pointed at a path that does not exist**,
+  `2-autostart/autostart-minimal.sh` instead of
+  `2-autostart/examples/autostart-minimal.sh`
+- **The issue chooser no longer offers a dead link.** A "Question or Discussion" contact
+  pointed at GitHub Discussions, which is not enabled for this repository
 
-## [1.1.0] - 2026-01-20
+## [1.1.0] - 2026-01-20: Installer, contribution policy and CI
+
+The initial release shipped the scripts and the documentation, but nothing to put them on
+a machine with and no gate on what got committed. This release adds both, plus the
+repository policy files a public project needs.
 
 ### Added
-- CI/CD pipeline with GitHub Actions
-- ShellCheck linting on push and pull requests
-- Automatic GitHub releases for version tags
-- `.shellcheckrc` configuration for consistent linting
+- **The graceful shutdown hook can be installed with one command.** `install.sh` copies
+  `docker-graceful-shutdown.sh` to `/opt/linux-server-reboot-management`, installs and
+  enables its systemd unit, and checks for systemd 240 or later first. The other three
+  phases stay manual, because they are adapted per machine
+- **Contributions have a documented process.** `CONTRIBUTING.md`, `CODE_OF_CONDUCT.md`
+  and `SECURITY.md` state how to contribute, what is expected and where to report a
+  vulnerability
+- **The documentation has an entry point.** `docs/README.md` indexes the seven documents
+  under `docs/`
+- **Shell scripts are linted on every push and pull request.** A GitHub Actions workflow
+  runs ShellCheck, with `.shellcheckrc` holding the settings so a local run matches CI
+- **Version tags publish a GitHub release automatically**
 
-## [1.0.0] - 2026-01-17
+## [1.0.0] - 2026-01-17: Three-phase reboot workflow
+
+A planned reboot of a service host is three problems, not one: knowing what ran before,
+shutting it down without corrupting state, and proving afterwards that everything came
+back. This release covers all three as separate, individually usable scripts.
 
 ### Added
-- Initial release with 3-phase reboot workflow
-- Phase 0: Optional pre-reboot system snapshots (system-snapshot.sh)
-- Phase 1: Graceful Docker shutdown (docker-graceful-shutdown.sh)
-- Phase 2: Automated service startup orchestration (autostart-template.sh with 13 phases)
-- Phase 3: Post-reboot verification (post-reboot-check.sh)
-- Extension API for custom metrics, health checks, and boot phases
-- Production documentation with 4 example configurations
-- One-line installer (install.sh)
-- systemd integration with drop-in configurations
-- JSON output for CI/CD integration
-- Proper escaping for special characters in container names/status
+- **Phase 1 shuts Docker down gracefully.** `docker-graceful-shutdown.sh` stops every
+  running container with `docker stop --time` (`CONTAINER_TIMEOUT`, default 30 s) and
+  calls `sync` afterwards, instead of leaving the containers to the system shutdown
+  timeout. It warns for each container with `restart=unless-stopped`, which will not come
+  back on its own after the reboot
+- **Phase 2 orchestrates service startup.** `autostart-template.sh` is a 13-phase
+  reference implementation to be adapted per machine, with four focused example scripts
+  for common setups
+- **Phase 3 verifies the machine came back.** `post-reboot-check.sh` compares the running
+  state against expectations and reports per check
+- **Phase 0 records the state to compare against.** `system-snapshot.sh` takes an
+  optional pre-reboot snapshot, and `snapshot-compare.py` diffs it against the state
+  after the reboot
+- **Custom metrics, health checks and boot phases can be added without forking.** An
+  extension API loads operator-supplied functions; `snapshot-extensions-example.sh` shows
+  the shape
+- **Results can be consumed by CI.** The verification scripts emit JSON alongside their
+  human-readable output and set exit codes accordingly, with escaping for special
+  characters in container names and status strings
+- **systemd integration ships with the scripts**, including drop-in configurations
+- **The documentation covers deployment, not just usage:** setup, architecture,
+  templates, workflow, verification and troubleshooting
 
-[Unreleased]: https://github.com/fidpa/linux-server-reboot-management/compare/v1.3.0...HEAD
+[Unreleased]: https://github.com/fidpa/linux-server-reboot-management/compare/v1.3.1...HEAD
+[1.3.1]: https://github.com/fidpa/linux-server-reboot-management/compare/v1.3.0...v1.3.1
 [1.3.0]: https://github.com/fidpa/linux-server-reboot-management/compare/v1.2.0...v1.3.0
 [1.2.0]: https://github.com/fidpa/linux-server-reboot-management/compare/v1.1.2...v1.2.0
 [1.1.2]: https://github.com/fidpa/linux-server-reboot-management/compare/v1.1.1...v1.1.2
 [1.1.1]: https://github.com/fidpa/linux-server-reboot-management/compare/v1.1.0...v1.1.1
-[1.1.0]: https://github.com/fidpa/linux-server-reboot-management/compare/v1.0.0...v1.1.0
-[1.0.0]: https://github.com/fidpa/linux-server-reboot-management/releases/tag/v1.0.0
+[1.1.0]: https://github.com/fidpa/linux-server-reboot-management/compare/141baef...v1.1.0
+[1.0.0]: https://github.com/fidpa/linux-server-reboot-management/commit/141baef

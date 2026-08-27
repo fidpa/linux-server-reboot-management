@@ -2,7 +2,7 @@
 # Copyright (c) 2026 Marc Allgeier (fidpa)
 # SPDX-License-Identifier: MIT
 # https://github.com/fidpa/linux-server-reboot-management
-# Version: 1.3.0
+# Version: 1.3.1
 """
 Snapshot Comparison Tool - Compare pre/post reboot system snapshots
 

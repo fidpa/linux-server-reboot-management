@@ -20,6 +20,7 @@ jobs:
         run: .github/version-check.sh "${GITHUB_REF#refs/tags/v}"
 
       - name: Extract changelog section
+        id: changelog
         run: |
           VERSION="${GITHUB_REF#refs/tags/v}"
           awk -v ver="$VERSION" '
@@ -27,16 +28,32 @@ jobs:
             /^## \[/                 { if (p) exit }
             /^\[[^]]+\]: /           { if (p) exit }
             p { print }
-          ' CHANGELOG.md > release-notes.md
+          ' CHANGELOG.md | sed -e '/./,$!d' > release-notes.md
           if [ ! -s release-notes.md ]; then
-            echo "No changelog section for $VERSION — refusing to publish empty notes"
+            echo "No changelog section for $VERSION, refusing to publish empty notes"
             exit 1
           fi
           cat release-notes.md
 
+          HEADLINE=$(awk -v ver="$VERSION" '
+            $0 ~ "^## \\[" ver "\\]" {
+              if (match($0, /- [0-9]{4}-[0-9]{2}-[0-9]{2}: /)) {
+                print substr($0, RSTART + RLENGTH)
+              }
+              exit
+            }
+          ' CHANGELOG.md)
+          if [ -n "$HEADLINE" ]; then
+            echo "title=v${VERSION}: ${HEADLINE}" >> "$GITHUB_OUTPUT"
+          else
+            echo "::warning::No headline in the '## [${VERSION}]' heading, falling back to the bare tag name as the release title"
+            echo "title=v${VERSION}" >> "$GITHUB_OUTPUT"
+          fi
+
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
+          name: ${{ steps.changelog.outputs.title }}
           body_path: release-notes.md
           draft: false
           prerelease: ${{ contains(github.ref, '-') }}
