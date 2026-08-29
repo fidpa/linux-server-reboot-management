@@ -7,6 +7,68 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.3.4] - 2026-08-30: The README describes the scripts that are in the repository
+
+A full pass over `README.md`, facts first and language second. Three claims did not
+survive the comparison with the code. The worst was a mechanism, not a number: the
+README advertised "<5s (8 containers, parallel stops)", while
+`1-graceful-shutdown/docker-graceful-shutdown.sh` stops containers in a `while read`
+loop, one after another. A reader sizing a shutdown window from that line would have
+budgeted for the slowest container instead of the sum of all of them. Alongside the
+corrections, the two surfaces an operator configures were missing from the README
+entirely: the environment variables and the command-line interfaces.
+
+### Changed
+
+- **The shutdown timing statement describes the loop that exists.** The stops are
+  sequential, so a stack of slow containers adds up rather than overlapping, and a
+  container that ignores SIGTERM costs up to `GRACEFUL_SHUTDOWN_TIMEOUT` seconds on
+  its own. The "parallel stops" wording is gone from `README.md` and the limitation is
+  named in the new Known-limitations block.
+- **The line counts name their counting rule.** The five template sizes lost their
+  approximation tilde and now say what was counted: `wc -l` on the file, licence header
+  and comments included. All five values were measured and were already correct.
+- **The sibling-project reference states the right number.** `bash-production-toolkit`
+  ships ten libraries; the See Also entry claimed eight.
+- **The README documents the configuration surface.** A table of all sixteen
+  environment variables, each with the script that reads it and its default, from
+  `GRACEFUL_SHUTDOWN_TIMEOUT` and `INSTALL_DIR` through the four `ENABLE_*` flags of
+  `2-autostart/autostart-template.sh` to `SNAPSHOT_DIR` and `DOCKER_SERVICE_NAME`.
+- **The README documents the command-line interfaces.** The `--help` output of
+  `3-verification/snapshot-compare.py` verbatim as argparse prints it, the options and
+  the five exit codes of `3-verification/post-reboot-check.sh`, and the argument
+  validation of `0-pre-reboot/system-snapshot.sh`, which accepts `pre-reboot` and
+  `post-reboot` and nothing else.
+- **`install.sh` appears in the Quick Start.** The installer has existed since 1.1.0,
+  but the Quick Start still walked through the `mkdir`, `cp`, `daemon-reload` and
+  `enable` steps that it performs, so the shorter and checked path was invisible to
+  anyone reading only the README.
+- **Limits stand next to the features.** A Known-limitations block after the feature
+  list names the `TEMPLATE_UNCONFIGURED` refusal of `autostart-template.sh` (exit 78,
+  `EX_CONFIG`), the single-node scope, the absence of a rollback when a boot phase
+  fails halfway, and the fact that the hook reaches Docker containers only.
+- **Compatibility separates what was tested from what should work.** The previous
+  "Fully supported" list named seven distributions, and nothing in the repository
+  records a reboot cycle on any of them beyond the two machines the project runs on.
+  Those two are now the tested tier; Ubuntu, Debian 11 and 12, RHEL, Rocky and Fedora
+  moved to "Should work, untested".
+- **The production numbers carry their measurement conditions.** They come from two
+  private machines rather than a test suite, and the section says so. The 120s figure
+  is tied to `MAX_BOOT_TIME` in the template, which is where it comes from.
+- **The production-setup note in `2-autostart/README.md` describes a device class, not
+  the operator's inventory.** The Pi 5 router line named a "Pi Zero fleet integration",
+  which inventories one particular installation the same way the passages corrected in
+  `docs/ARCHITECTURE.md` for 1.2.0 did; that pass did not reach this file. It now reads
+  "single-board device fleet integration".
+- **The prose was rewritten against the workbench README standard.** The
+  `**The Problem**:` template opening, the feature bullets that asserted a stance
+  ("Zero Data Loss", "Production-Proven", "CI/CD Ready") rather than naming a fact, and
+  the threefold retelling of the `Conflicts=` discovery across Key Concepts, Author and
+  Background. The `Background` section is dissolved into the two places that already
+  told the story. `CHANGELOG.md`, `SECURITY.md`, `CONTRIBUTING.md` and
+  `CODE_OF_CONDUCT.md` are linked from the documentation section instead of going
+  unmentioned.
+
 ## [1.3.3] - 2026-08-28: GitHub identifies the project as MIT-licensed
 
 ### Changed
@@ -275,7 +337,8 @@ back. This release covers all three as separate, individually usable scripts.
 - **The documentation covers deployment, not just usage:** setup, architecture,
   templates, workflow, verification and troubleshooting
 
-[Unreleased]: https://github.com/fidpa/linux-server-reboot-management/compare/v1.3.3...HEAD
+[Unreleased]: https://github.com/fidpa/linux-server-reboot-management/compare/v1.3.4...HEAD
+[1.3.4]: https://github.com/fidpa/linux-server-reboot-management/compare/v1.3.3...v1.3.4
 [1.3.3]: https://github.com/fidpa/linux-server-reboot-management/compare/v1.3.1...v1.3.3
 [1.3.1]: https://github.com/fidpa/linux-server-reboot-management/compare/v1.3.0...v1.3.1
 [1.3.0]: https://github.com/fidpa/linux-server-reboot-management/compare/v1.2.0...v1.3.0

@@ -39,7 +39,7 @@ The examples are intentionally modular for learning, but combining them into one
 ### Our Production Setup
 
 We maintain device-specific monolithic scripts:
-- **Pi 5 Router**: 1443 LOC (network-heavy, Pi Zero fleet integration)
+- **Pi 5 Router**: 1443 LOC (network-heavy, single-board device fleet integration)
 - **NAS Server**: 1139 LOC (Docker-heavy, 18 containers, LVM validation)
 
 These scripts evolved from `autostart-template.sh` + relevant example patterns.

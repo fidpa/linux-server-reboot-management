@@ -151,6 +151,6 @@ This documentation follows these principles:
 
 ---
 
-**Version**: 1.3.3
+**Version**: 1.3.4
 **Last Updated**: 2026-08-27
 **Maintainer**: Marc Allgeier ([@fidpa](https://github.com/fidpa))
